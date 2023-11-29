@@ -4,7 +4,8 @@ import qrcode
 from PyQt5.QtGui import QPixmap, QIcon
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import (QApplication, QLabel, QLineEdit, QMainWindow,
-                             QVBoxLayout, QWidget, QComboBox, QRadioButton, QButtonGroup, QPushButton, QFileDialog)
+                             QVBoxLayout, QWidget, QComboBox, QRadioButton,
+                             QButtonGroup, QPushButton, QFileDialog, QCheckBox)
 
 
 class QRTool(QMainWindow):
@@ -83,11 +84,17 @@ class QRTool(QMainWindow):
 
         self.save_button = QPushButton("Сохранить QR-код", self)    # Добавление кнопки для сохранения QR-кода
         self.save_button.setGeometry(50, 100, 100, 30)
+        self.save_button.setStyleSheet("""
+                                        background-color: #ffffff; /* Цвет фона выпадающего списка */
+                                        
+                                        selection-background-color: #666666; /* Цвет выделенного элемента */
+                                        border: 1px solid #666666; /* Граница */
+                                        border-radius: 4px; /* Скругленные углы */ 
+                                       """)
         self.save_button.clicked.connect(self.save_file)
         layout.addWidget(self.save_button)
 
-
-        self.text_label2 = QLabel("Введите:")
+        self.text_label2 = QLabel("Введите")
         self.text_label2.setAlignment(Qt.AlignmentFlag.AlignBottom)
         layout.addWidget(self.text_label2)
 
@@ -101,15 +108,18 @@ class QRTool(QMainWindow):
         self.text_edit.setMinimumSize(self.text_edit.sizeHint().width(), 20)
 
         self.email_edit = QLineEdit()  # Почта
+        self.email_edit.setPlaceholderText("e-mail получателя")
         self.email_edit.setAlignment(Qt.AlignmentFlag.AlignTop)
         self.email_edit.setStyleSheet(style)
         self.email_edit.textChanged.connect(lambda: self.on_text_changed(f'mailto:{self.email_edit.text()}'))
         layout.addWidget(self.email_edit)
 
         self.geo_edit = QLineEdit()  # Геопозиция
+        self.geo_edit.setPlaceholderText("Широта")
         self.geo_edit.setAlignment(Qt.AlignmentFlag.AlignTop)
         self.geo_edit.setStyleSheet(style)
         self.geo2_edit = QLineEdit()
+        self.geo2_edit.setPlaceholderText("Долгота")
         self.geo2_edit.setAlignment(Qt.AlignmentFlag.AlignTop)
         self.geo2_edit.setStyleSheet(style)
         self.geo2_edit.textChanged.connect(lambda: self.on_text_changed(
@@ -118,21 +128,25 @@ class QRTool(QMainWindow):
         layout.addWidget(self.geo2_edit)
 
         self.tel_edit = QLineEdit()  # Телефон
+        self.tel_edit.setPlaceholderText("Номер телефона абонента")
         self.tel_edit.setAlignment(Qt.AlignmentFlag.AlignTop)
         self.tel_edit.setStyleSheet(style)
         self.tel_edit.textChanged.connect(lambda: self.on_text_changed(f'tel:+{self.tel_edit.text()}'))
         layout.addWidget(self.tel_edit)
 
         self.sms_edit = QLineEdit()  # СМС сообщение
+        self.sms_edit.setPlaceholderText("Номер телефона получателя")
         self.sms_edit.setAlignment(Qt.AlignmentFlag.AlignTop)
         self.sms_edit.setStyleSheet(style)
-        self.sms_edit.textChanged.connect(lambda: self.on_text_changed(f'SMSTO:{self.sms_edit.text()}'))
+        self.sms_edit.textChanged.connect(lambda: self.on_text_changed(f'SMSTO:+{self.sms_edit.text()}'))
         layout.addWidget(self.sms_edit)
 
         self.wa_edit = QLineEdit()  # WhatsApp
+        self.wa_edit.setPlaceholderText("Номер телефона абонента")
         self.wa_edit.setAlignment(Qt.AlignmentFlag.AlignTop)
         self.wa_edit.setStyleSheet(style)
         self.wa2_edit = QLineEdit()
+        self.wa2_edit.setPlaceholderText("Сообщение")
         self.wa2_edit.setAlignment(Qt.AlignmentFlag.AlignTop)
         self.wa2_edit.setStyleSheet(style)
         self.wa2_edit.textChanged.connect(
@@ -141,6 +155,7 @@ class QRTool(QMainWindow):
         layout.addWidget(self.wa2_edit)
 
         self.skype_edit = QLineEdit()  # Skype
+        self.skype_edit.setPlaceholderText("Имя пользователя")
         self.skype_edit.setAlignment(Qt.AlignmentFlag.AlignTop)
         self.skype_edit.setStyleSheet(style)
         self.chat_but = QRadioButton("chat")
@@ -163,9 +178,13 @@ class QRTool(QMainWindow):
         layout.addWidget(self.result_but)
 
         self.zoom_edit = QLineEdit()  # Zoom
+        self.zoom_edit.setPlaceholderText("ID встречи")
         self.zoom_edit.setAlignment(Qt.AlignmentFlag.AlignTop)
         self.zoom_edit.setStyleSheet(style)
+        self.zoom_edit.textChanged.connect(
+            lambda: self.on_text_changed(f'https://zoom.us/j/{self.zoom_edit.text()}?pwd={self.zoom2_edit.text()}'))
         self.zoom2_edit = QLineEdit()
+        self.zoom2_edit.setPlaceholderText("Пароль")
         self.zoom2_edit.setAlignment(Qt.AlignmentFlag.AlignTop)
         self.zoom2_edit.setStyleSheet(style)
         self.zoom2_edit.textChanged.connect(
@@ -174,10 +193,48 @@ class QRTool(QMainWindow):
         layout.addWidget(self.zoom2_edit)
 
         self.wifi_edit = QLineEdit()  # WiFi
+        self.wifi_edit.setPlaceholderText("Имя сети")
         self.wifi_edit.setAlignment(Qt.AlignmentFlag.AlignTop)
         self.wifi_edit.setStyleSheet(style)
-        self.wifi_edit.textChanged.connect(self.on_text_changed)
+        self.wifi2_edit = QLineEdit()
+        self.wifi2_edit.setPlaceholderText("Пароль")
+        self.wifi2_edit.setAlignment(Qt.AlignmentFlag.AlignTop)
+        self.wifi2_edit.setStyleSheet(style)
+        self.open_but = QRadioButton("")
+        self.open_but.setChecked(True)
+        self.wpa_but = QRadioButton("T:WPA;")
+        self.wep_but = QRadioButton("T:WEP;")
+        self.wifi_result_but = QLineEdit("")
+        self.wifi_result_but.setAlignment(Qt.AlignmentFlag.AlignTop)
+
+        self.isHidden = QCheckBox()
+        self.isHidden.setText("H:true;")
+        self.isHidden.stateChanged.connect(self.on_checkbox_state_changed)
+
+        self.wifi_isHidden = QLineEdit("")
+        layout.addWidget(self.wifi_isHidden)
+
+        self.wifi_group = QButtonGroup()
+        self.wifi_group.addButton(self.open_but)
+        self.wifi_group.addButton(self.wpa_but)
+        self.wifi_group.addButton(self.wep_but)
+        self.wifi_group.buttonClicked.connect(self.wifi_but_clicked)
+        self.isHidden.stateChanged.connect(
+            lambda: self.on_text_changed(f'WIFI:S:{self.wifi_edit.text()};{self.wifi_result_but.text()}P:{self.wifi2_edit.text()};{self.wifi_isHidden.text()};'))
+        self.wifi_group.buttonClicked.connect(
+            lambda: self.on_text_changed(f'WIFI:S:{self.wifi_edit.text()};{self.wifi_result_but.text()}P:{self.wifi2_edit.text()};{self.wifi_isHidden.text()};'))
+        self.wifi_edit.textChanged.connect(
+            lambda: self.on_text_changed(f'WIFI:S:{self.wifi_edit.text()};{self.wifi_result_but.text()}P:{self.wifi2_edit.text()};{self.wifi_isHidden.text()};'))
+        self.wifi2_edit.textChanged.connect(
+            lambda: self.on_text_changed(f'WIFI:S:{self.wifi_edit.text()};{self.wifi_result_but.text()}P:{self.wifi2_edit.text()};{self.wifi_isHidden.text()};'))
         layout.addWidget(self.wifi_edit)
+        layout.addWidget(self.wifi2_edit)
+        layout.addWidget(self.isHidden)
+        layout.addWidget(self.open_but)
+        layout.addWidget(self.wpa_but)
+        layout.addWidget(self.wep_but)
+        layout.addWidget(self.wifi_result_but)
+
 
         self.vcard_edit = QLineEdit()  # Визитка
         self.vcard_edit.setAlignment(Qt.AlignmentFlag.AlignTop)
@@ -206,6 +263,13 @@ class QRTool(QMainWindow):
         self.zoom_edit.hide()
         self.zoom2_edit.hide()
         self.wifi_edit.hide()
+        self.wifi2_edit.hide()
+        self.open_but.hide()
+        self.wpa_but.hide()
+        self.wep_but.hide()
+        self.wifi_result_but.hide()
+        self.isHidden.hide()
+        self.wifi_isHidden.hide()
         self.vcard_edit.hide()
         self.vcal_edit.hide()
 
@@ -214,16 +278,24 @@ class QRTool(QMainWindow):
         central_widget.setLayout(layout)
         self.setCentralWidget(central_widget)
 
+    def on_checkbox_state_changed(self, state):
+        if state == Qt.Checked:
+            self.wifi_isHidden.setText("H:true;")
+        else:
+            self.wifi_isHidden.setText("")
+
     def save_file(self):    # Сохранение QR-кода
         if self.imagePath:
-            filename, _ = QFileDialog.getSaveFileName(self, "Куда сохраняем QR-код?", "myqr.png",
-                                                      "PNG (*.png)")
+            filename, _ = QFileDialog.getSaveFileName(self, "Куда сохраняем QR-код?", "myqr.png", "PNG (*.png)")
             if filename:
                 print("QR-код сохранён, путь до файла: ", filename)
-
                 shutil.copy(self.imagePath, filename)
+
     def but_clicked(self, button):  # Функция проверки кнопок для Skype
         self.result_but.setText(button.text())
+
+    def wifi_but_clicked(self, button):  # Функция проверки кнопок для WiFi
+        self.wifi_result_but.setText(button.text())
 
     def on_combo_box_changed(self, index):  # Показывать только те виджеты,
         self.text_edit.hide()  # которые нужны для выбранного пункта в ComboBox
@@ -241,6 +313,13 @@ class QRTool(QMainWindow):
         self.zoom_edit.hide()
         self.zoom2_edit.hide()
         self.wifi_edit.hide()
+        self.wifi2_edit.hide()
+        self.open_but.hide()
+        self.wpa_but.hide()
+        self.wep_but.hide()
+        self.wifi_result_but.hide()
+        self.isHidden.hide()
+        self.wifi_isHidden.hide()
         self.vcard_edit.hide()
         self.vcal_edit.hide()
 
@@ -268,6 +347,11 @@ class QRTool(QMainWindow):
                 self.zoom2_edit.show()
             case 8:
                 self.wifi_edit.show()
+                self.wifi2_edit.show()
+                self.open_but.show()
+                self.wpa_but.show()
+                self.wep_but.show()
+                self.isHidden.show()
             case 9:
                 self.vcard_edit.show()
             case 10:
