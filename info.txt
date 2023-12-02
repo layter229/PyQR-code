@@ -1,0 +1,86 @@
+"Простой текст"
+
+http://{url}
+http://{nvsu.ru}
+
+mailto:{email}?subject={Тема письма}&body={Текст письма}
+mailto:den@mail.ru?subject=Создание тикета&body=Создан запрос на создание тикета
+
+geo:{Широта},{Долгота}?q={Широта},{Долгота}
+geo:60.941343312651014,76.59032496198323?q=60.941343312651014,76.59032496198323
+
+tel:+{номер начиная с кода страны}
+tel:+79959608499
+
+SMSTO:+{номер начиная с кода страны}:{Text sms}
+SMSTO:+79959608499:Привет!
+
+https://wa.me/{Номер}/?text={Текст}
+https://wa.me/79959608499/?text=Привет!
+
+skype:{id}?{call или chat}
+skype:layter229?call
+skype:layter229?chat
+
+https://zoom.us/j/{id_meet}?pwd={pass}
+https://zoom.us/j/763345214?pwd=123456
+
+WIFI:S:{Name};T:{тип защиты: WEP или WPA};P:{Pass};H:{Скрытая сеть: true или false};;
+WIFI:S:Blackhole;T:WEP;P:88888888;H:true;;
+WIFI:S:Blackhole;T:WPA;P:88888888;H:false;;
+
+BEGIN:VCARD
+VERSION:3.0
+N;CHARSET=UTF-8:{Фамилия};{Отчество};;{Имя};
+FN;CHARSET=UTF-8:{Имя Отчество Фамилия}
+TEL;TYPE=CELL:+{Номер}
+ORG;CHARSET=UTF-8:{Место работы}
+TITLE;CHARSET=UTF-8:{Должность}
+ADR;CHARSET=UTF-8;TYPE=WORK,PREF:;;{Адрес работы или дома(Улица, дом)}\, {кв};{Город};{Область};{Индекс};{Страна}
+EMAIL:{email}
+URL:{url}
+END:VCARD
+
+BEGIN:VCARD
+VERSION:3.0
+N;CHARSET=UTF-8:Епифанов;Евгеньевич;;Денис;
+FN;CHARSET=UTF-8:Денис Евгеньевич Епифанов
+TEL;TYPE=CELL:+79028518499
+ORG;CHARSET=UTF-8:Роснефть
+TITLE;CHARSET=UTF-8:Инженер-разработчик
+ADR;CHARSET=UTF-8;TYPE=WORK,PREF:;;Чапаева 91\, кв. 68;Нижневартовск;Ханты-Мансийский Автономный округ - Югра;628617;Россия
+EMAIL:denis.epifanov.03@mail.ru
+URL:http://vk.com/givemesomeracks
+END:VCARD
+
+BEGIN:VCALENDAR
+VERSION:2.0
+BEGIN:VEVENT
+DTSTART:{Дата начала события}
+DTEND:{Дата окончания события}
+SUMMARY:{Название}
+URL:http://{url}
+CLASS:PUBLIC
+BEGIN:VALARM
+TRIGGER:{За сколько до события отправить напоминание}
+ACTION:DISPLAY
+DESCRIPTION:Reminder
+END:VALARM
+END:VEVENT
+END:VCALENDAR
+
+BEGIN:VCALENDAR
+VERSION:2.0
+BEGIN:VEVENT
+DTSTART:20231023T040007Z
+DTEND:20231023T160048Z
+SUMMARY:День рождения НВГУ
+URL:http://nvsu.ru
+CLASS:PUBLIC
+BEGIN:VALARM
+TRIGGER:-PT24H
+ACTION:DISPLAY
+DESCRIPTION:Reminder
+END:VALARM
+END:VEVENT
+END:VCALENDAR
