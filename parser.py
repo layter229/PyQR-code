@@ -1,12 +1,12 @@
 import shutil
 import sys
 import qrcode
-from PyQt5.QtGui import QPixmap, QIcon
+from PyQt5.QtCore import QDate,QDateTime,QTime
+from PyQt5.QtGui import *
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import (QApplication, QLabel, QLineEdit, QMainWindow,
                              QVBoxLayout, QWidget, QComboBox, QRadioButton,
-                             QButtonGroup, QPushButton, QFileDialog, QCheckBox)
-
+                             QButtonGroup, QPushButton, QFileDialog, QCheckBox, QDateTimeEdit)
 
 
 class QRTool(QMainWindow):
@@ -19,17 +19,20 @@ class QRTool(QMainWindow):
 
         layout = QVBoxLayout()
 
-        self.setMinimumSize(320, 400)  # Минимальные размеры ширины и высоты окна
+        self.setMinimumSize(330, 410)  # Минимальные размеры ширины и высоты окна
         self.setMaximumSize(500, 580)  # Максимальные размеры ширины и высоты окна
 
         self.text_label = QLabel("Выберете какой QR-код вы хотите создать:")
         self.text_label.setAlignment(Qt.AlignmentFlag.AlignTop)
         layout.addWidget(self.text_label)
 
+
         options = ["Текст / Ссылка", "Почта",
                    "Геопозиция", "Телефон", "СМС",
                    "Whatsapp", "Skype", "Zoom",
                    "WiFi", "Визитка", "Календарь"]  # Список элементов ComboBox
+
+
 
         style = ("border: 1px solid #666666;"  # Стиль для QLineEdit
                  "border-radius: 4px")
@@ -83,11 +86,11 @@ class QRTool(QMainWindow):
         self.imagePath = 'qr.png'
         layout.addWidget(self.qr_label)
 
-        self.save_button = QPushButton("Сохранить QR-код", self)    # Добавление кнопки для сохранения QR-кода
+        self.save_button = QPushButton("Сохранить QR-код", self)  # Добавление кнопки для сохранения QR-кода
         self.save_button.setGeometry(50, 100, 100, 30)
         self.save_button.setStyleSheet("""
                                         background-color: #ffffff; /* Цвет фона выпадающего списка */
-                                        
+
                                         selection-background-color: #666666; /* Цвет выделенного элемента */
                                         border: 1px solid #666666; /* Граница */
                                         border-radius: 4px; /* Скругленные углы */ 
@@ -103,7 +106,6 @@ class QRTool(QMainWindow):
         self.text_edit.setPlaceholderText("Текст или ссылка")
         self.text_edit.setAlignment(Qt.AlignmentFlag.AlignTop)
         self.text_edit.setStyleSheet(style)
-
         self.text_edit.textChanged.connect(self.on_text_changed)
         layout.addWidget(self.text_edit)
         self.text_edit.setMinimumSize(self.text_edit.sizeHint().width(), 20)
@@ -150,6 +152,8 @@ class QRTool(QMainWindow):
         self.wa2_edit.setPlaceholderText("Сообщение")
         self.wa2_edit.setAlignment(Qt.AlignmentFlag.AlignTop)
         self.wa2_edit.setStyleSheet(style)
+        self.wa_edit.textChanged.connect(
+            lambda: self.on_text_changed(f'https://wa.me/{self.wa_edit.text()}/?text={self.wa2_edit.text()}'))
         self.wa2_edit.textChanged.connect(
             lambda: self.on_text_changed(f'https://wa.me/{self.wa_edit.text()}/?text={self.wa2_edit.text()}'))
         layout.addWidget(self.wa_edit)
@@ -221,13 +225,17 @@ class QRTool(QMainWindow):
         self.wifi_group.addButton(self.wep_but)
         self.wifi_group.buttonClicked.connect(self.wifi_but_clicked)
         self.isHidden.stateChanged.connect(
-            lambda: self.on_text_changed(f'WIFI:S:{self.wifi_edit.text()};{self.wifi_result_but.text()}P:{self.wifi2_edit.text()};{self.wifi_isHidden.text()};'))
+            lambda: self.on_text_changed(
+                f'WIFI:S:{self.wifi_edit.text()};{self.wifi_result_but.text()}P:{self.wifi2_edit.text()};{self.wifi_isHidden.text()};'))
         self.wifi_group.buttonClicked.connect(
-            lambda: self.on_text_changed(f'WIFI:S:{self.wifi_edit.text()};{self.wifi_result_but.text()}P:{self.wifi2_edit.text()};{self.wifi_isHidden.text()};'))
+            lambda: self.on_text_changed(
+                f'WIFI:S:{self.wifi_edit.text()};{self.wifi_result_but.text()}P:{self.wifi2_edit.text()};{self.wifi_isHidden.text()};'))
         self.wifi_edit.textChanged.connect(
-            lambda: self.on_text_changed(f'WIFI:S:{self.wifi_edit.text()};{self.wifi_result_but.text()}P:{self.wifi2_edit.text()};{self.wifi_isHidden.text()};'))
+            lambda: self.on_text_changed(
+                f'WIFI:S:{self.wifi_edit.text()};{self.wifi_result_but.text()}P:{self.wifi2_edit.text()};{self.wifi_isHidden.text()};'))
         self.wifi2_edit.textChanged.connect(
-            lambda: self.on_text_changed(f'WIFI:S:{self.wifi_edit.text()};{self.wifi_result_but.text()}P:{self.wifi2_edit.text()};{self.wifi_isHidden.text()};'))
+            lambda: self.on_text_changed(
+                f'WIFI:S:{self.wifi_edit.text()};{self.wifi_result_but.text()}P:{self.wifi2_edit.text()};{self.wifi_isHidden.text()};'))
         layout.addWidget(self.wifi_edit)
         layout.addWidget(self.wifi2_edit)
         layout.addWidget(self.isHidden)
@@ -236,18 +244,142 @@ class QRTool(QMainWindow):
         layout.addWidget(self.wep_but)
         layout.addWidget(self.wifi_result_but)
 
-
         self.vcard_edit = QLineEdit()  # Визитка
+        self.vcard_edit.setPlaceholderText("Фамилия")
         self.vcard_edit.setAlignment(Qt.AlignmentFlag.AlignTop)
         self.vcard_edit.setStyleSheet(style)
-        self.vcard_edit.textChanged.connect(self.on_text_changed)
-        layout.addWidget(self.vcard_edit)
 
-        self.vcal_edit = QLineEdit()  # Календарь
-        self.vcal_edit.setAlignment(Qt.AlignmentFlag.AlignTop)
-        self.vcal_edit.setStyleSheet(style)
-        self.vcal_edit.textChanged.connect(self.on_text_changed)
-        layout.addWidget(self.vcal_edit)
+        self.vcard2_edit = QLineEdit()
+        self.vcard2_edit.setPlaceholderText("Имя")
+        self.vcard2_edit.setAlignment(Qt.AlignmentFlag.AlignTop)
+        self.vcard2_edit.setStyleSheet(style)
+
+        self.vcard3_edit = QLineEdit()
+        self.vcard3_edit.setPlaceholderText("Номер телефона")
+        self.vcard3_edit.setAlignment(Qt.AlignmentFlag.AlignTop)
+        self.vcard3_edit.setStyleSheet(style)
+
+        self.vcard4_edit = QLineEdit()
+        self.vcard4_edit.setPlaceholderText("Дата рождения в формате yyyymmdd")
+        self.vcard4_edit.setAlignment(Qt.AlignmentFlag.AlignTop)
+        self.vcard4_edit.setStyleSheet(style)
+
+        self.vcard5_edit = QLineEdit()
+        self.vcard5_edit.setPlaceholderText("Почта")
+        self.vcard5_edit.setAlignment(Qt.AlignmentFlag.AlignTop)
+        self.vcard5_edit.setStyleSheet(style)
+
+        self.vcard6_edit = QLineEdit()
+        self.vcard6_edit.setPlaceholderText("URL")
+        self.vcard6_edit.setAlignment(Qt.AlignmentFlag.AlignTop)
+        self.vcard6_edit.setStyleSheet(style)
+
+        self.vcard_edit.textChanged.connect(
+            lambda: self.on_text_changed(
+                f'MECARD: N:{self.vcard_edit.text()}, {self.vcard2_edit.text()};TEL:+{self.vcard3_edit.text()};BDAY:{self.vcard4_edit.text()};EMAIL:{self.vcard5_edit.text()};URL:{self.vcard6_edit.text()};;'))
+        self.vcard2_edit.textChanged.connect(
+            lambda: self.on_text_changed(
+                f'MECARD: N:{self.vcard_edit.text()}, {self.vcard2_edit.text()};TEL:+{self.vcard3_edit.text()};BDAY:{self.vcard4_edit.text()};EMAIL:{self.vcard5_edit.text()};URL:{self.vcard6_edit.text()};;'))
+        self.vcard3_edit.textChanged.connect(
+            lambda: self.on_text_changed(
+                f'MECARD: N:{self.vcard_edit.text()}, {self.vcard2_edit.text()};TEL:+{self.vcard3_edit.text()};BDAY:{self.vcard4_edit.text()};EMAIL:{self.vcard5_edit.text()};URL:{self.vcard6_edit.text()};;'))
+        self.vcard4_edit.textChanged.connect(
+            lambda: self.on_text_changed(
+                f'MECARD: N:{self.vcard_edit.text()}, {self.vcard2_edit.text()};TEL:+{self.vcard3_edit.text()};BDAY:{self.vcard4_edit.text()};EMAIL:{self.vcard5_edit.text()};URL:{self.vcard6_edit.text()};;'))
+        self.vcard5_edit.textChanged.connect(
+            lambda: self.on_text_changed(
+                f'MECARD: N:{self.vcard_edit.text()}, {self.vcard2_edit.text()};TEL:+{self.vcard3_edit.text()};BDAY:{self.vcard4_edit.text()};EMAIL:{self.vcard5_edit.text()};URL:{self.vcard6_edit.text()};;'))
+        self.vcard6_edit.textChanged.connect(
+            lambda: self.on_text_changed(
+                f'MECARD: N:{self.vcard_edit.text()}, {self.vcard2_edit.text()};TEL:+{self.vcard3_edit.text()};BDAY:{self.vcard4_edit.text()};EMAIL:{self.vcard5_edit.text()};URL:{self.vcard6_edit.text()};;'))
+        layout.addWidget(self.vcard_edit)
+        layout.addWidget(self.vcard2_edit)
+        layout.addWidget(self.vcard3_edit)
+        layout.addWidget(self.vcard4_edit)
+        layout.addWidget(self.vcard5_edit)
+        layout.addWidget(self.vcard6_edit)
+
+        self.vcal_label = QLabel("Дата начала события:")  # Визитка
+        
+        self.vcal_label.setAlignment(Qt.AlignmentFlag.AlignTop)
+
+
+        self.vcal2_label = QLabel("Дата окончания события:")
+        self.vcal2_label.setAlignment(Qt.AlignmentFlag.AlignTop)
+
+
+        self.vcal3_edit = QLineEdit()
+        self.vcal3_edit.setPlaceholderText("Название события")
+        self.vcal3_edit.setAlignment(Qt.AlignmentFlag.AlignTop)
+        self.vcal3_edit.setStyleSheet(style)
+
+        self.vcal4_edit = QLineEdit()
+        self.vcal4_edit.setPlaceholderText("URL")
+        self.vcal4_edit.setAlignment(Qt.AlignmentFlag.AlignTop)
+        self.vcal4_edit.setStyleSheet(style)
+
+        # Создайте пространство даты и времени и назначьте текущую дату и время. И изменить формат отображения
+        self.dateEdit = QDateTimeEdit(QDateTime.currentDateTime(), self)
+        self.dateEdit.setDisplayFormat('yyyyMMddTHH:mm:ss"Z"')
+
+        # Установите максимальные и минимальные даты на основе текущей даты, следующего года и предыдущего года
+        self.dateEdit.setMinimumDate(QDate.currentDate().addDays(0))
+
+        # Установите управление календарем, чтобы разрешить всплывающее окно
+        self.dateEdit.setCalendarPopup(True)
+
+        # Триггер функции слота при изменении даты
+        self.dateEdit.dateChanged.connect(self.onDateChanged)
+        # Триггер функции слота при изменении даты и времени
+        self.dateEdit.dateTimeChanged.connect(self.onDateTimeChanged)
+        # Trigger при изменении времени
+        self.dateEdit.timeChanged.connect(self.onTimeChanged)
+
+        # Создайте пространство даты и времени и назначьте текущую дату и время. И изменить формат отображения
+        self.date2Edit = QDateTimeEdit(QDateTime.currentDateTime(), self)
+        self.date2Edit.setDisplayFormat('yyyy-MM-dd HH:mm:ss')
+
+        # Установите максимальные и минимальные даты на основе текущей даты, следующего года и предыдущего года
+        self.date2Edit.setMinimumDate(QDate.currentDate().addDays(-2))
+
+        # Установите управление календарем, чтобы разрешить всплывающее окно
+        self.date2Edit.setCalendarPopup(True)
+
+        # Триггер функции слота при изменении даты
+        self.date2Edit.dateChanged.connect(self.onDateChanged)
+        # Триггер функции слота при изменении даты и времени
+        self.date2Edit.dateTimeChanged.connect(self.onDateTimeChanged)
+        # Trigger при изменении времени
+        self.date2Edit.timeChanged.connect(self.onTimeChanged)
+
+        self.dateEdit.setStyleSheet(style)
+        self.date2Edit.setStyleSheet(style)
+
+        # Создать кнопку и привязать пользовательский слот
+        self.btn = QPushButton('Получить дату и время')
+        self.btn.clicked.connect(self.onButtonClick)
+
+        self.dateEdit.timeChanged.connect(
+            lambda: self.on_text_changed(
+                f'BEGIN:VCALENDAR\nVERSION:2.0\nBEGIN:VEVENT\nDTSTART:{self.dateEdit.text()}\nDTEND:{self.date2Edit.text()}\nSUMMARY:{self.vcal3_edit.text()}\nURL:http://{self.vcal4_edit.text()}\nCLASS:PUBLIC\nBEGIN:VALARM\nTRIGGER:-PT24H\nACTION:DISPLAY\nDESCRIPTION:Reminder\nEND:VEVENT\nEND:VCALENDAR'))
+        self.date2Edit.timeChanged.connect(
+            lambda: self.on_text_changed(
+                f'BEGIN:VCALENDAR\nVERSION:2.0\nBEGIN:VEVENT\nDTSTART:{self.dateEdit.text()}\nDTEND:{self.date2Edit.text()}\nSUMMARY:{self.vcal3_edit.text()}\nURL:http://{self.vcal4_edit.text()}\nCLASS:PUBLIC\nBEGIN:VALARM\nTRIGGER:-PT24H\nACTION:DISPLAY\nDESCRIPTION:Reminder\nEND:VEVENT\nEND:VCALENDAR'))
+        self.vcal3_edit.textChanged.connect(
+            lambda: self.on_text_changed(
+                f'BEGIN:VCALENDAR\nVERSION:2.0\nBEGIN:VEVENT\nDTSTART:{self.dateEdit.text()}\nDTEND:{self.date2Edit.text()}\nSUMMARY:{self.vcal3_edit.text()}\nURL:http://{self.vcal4_edit.text()}\nCLASS:PUBLIC\nBEGIN:VALARM\nTRIGGER:-PT24H\nACTION:DISPLAY\nDESCRIPTION:Reminder\nEND:VEVENT\nEND:VCALENDAR'))
+        self.vcal4_edit.textChanged.connect(
+            lambda: self.on_text_changed(
+                f'BEGIN:VCALENDAR\nVERSION:2.0\nBEGIN:VEVENT\nDTSTART:{self.dateEdit.text()}\nDTEND:{self.date2Edit.text()}\nSUMMARY:{self.vcal3_edit.text()}\nURL:http://{self.vcal4_edit.text()}\nCLASS:PUBLIC\nBEGIN:VALARM\nTRIGGER:-PT24H\nACTION:DISPLAY\nDESCRIPTION:Reminder\nEND:VEVENT\nEND:VCALENDAR'))
+        layout.addWidget(self.vcal_label)
+        layout.addWidget(self.dateEdit)
+        layout.addWidget(self.vcal2_label)
+        layout.addWidget(self.date2Edit)
+        layout.addWidget(self.btn)
+        layout.addWidget(self.vcal3_edit)
+        layout.addWidget(self.vcal4_edit)
+
+
 
         # Прячем все виджеты
         self.email_edit.hide()
@@ -272,20 +404,76 @@ class QRTool(QMainWindow):
         self.isHidden.hide()
         self.wifi_isHidden.hide()
         self.vcard_edit.hide()
-        self.vcal_edit.hide()
+        self.vcard_edit.hide()
+        self.vcard2_edit.hide()
+        self.vcard3_edit.hide()
+        self.vcard4_edit.hide()
+        self.vcard5_edit.hide()
+        self.vcard6_edit.hide()
+        self.vcal_label.hide()
+        self.vcal2_label.hide()
+        self.vcal3_edit.hide()
+        self.vcal4_edit.hide()
+        self.dateEdit.hide()
+        self.date2Edit.hide()
+        self.btn.hide()
 
         # Добавляем рабочее место для виджетов
         central_widget = QWidget()
         central_widget.setLayout(layout)
         self.setCentralWidget(central_widget)
 
+        window_size = self.size()
+        width = window_size.width()
+        height = window_size.height()
+
+        print(f"Ширина: {width}, Высота: {height}")
+
+        # Выполняется при изменении даты
+
+    def onDateChanged(self, date):
+        # Выход изменил дату
+        print(date)
+        # Выполнить независимо от изменения даты или времени
+
+    def onDateTimeChanged(self, dateTime):
+        # Выход изменил дату и время
+        print(dateTime)
+        # Выполнение изменения времени
+
+    def onTimeChanged(self, time):
+        # Выход изменил время
+        print(time)
+
+    def onButtonClick(self):
+        dateTime = self.dateEdit.dateTime()
+        # Максимальная дата
+        maxDate = self.dateEdit.maximumDate()
+        # Максимальное время даты
+        maxDateTime = self.dateEdit.maximumDateTime()
+        # Максимальное время
+        maxTime = self.dateEdit.maximumTime()
+
+        # Минимальная дата
+        minDate = self.dateEdit.minimumDate()
+        # Минимальная дата и время
+        minDateTime = self.dateEdit.minimumDateTime()
+        # Минимальное время
+        minTime = self.dateEdit.minimumTime()
+
+        print('\ nВыберите время и дату')
+        print("Дата и время =% s" % str(dateTime))
+        print("Максимальное время даты =% s" % str(maxDateTime))
+        print("Макс. Время =% s" % str(maxTime))
+        print("Минимальное время даты =% s" % str(minDateTime))
+        print("Минимальное время =% s" % str(minTime))
     def on_checkbox_state_changed(self, state):
         if state == Qt.Checked:
             self.wifi_isHidden.setText("H:true;")
         else:
             self.wifi_isHidden.setText("")
 
-    def save_file(self):    # Сохранение QR-кода
+    def save_file(self):  # Сохранение QR-кода
         if self.imagePath:
             filename, _ = QFileDialog.getSaveFileName(self, "Куда сохраняем QR-код?", "myqr.png", "PNG (*.png)")
             if filename:
@@ -322,7 +510,19 @@ class QRTool(QMainWindow):
         self.isHidden.hide()
         self.wifi_isHidden.hide()
         self.vcard_edit.hide()
-        self.vcal_edit.hide()
+        self.vcard_edit.hide()
+        self.vcard2_edit.hide()
+        self.vcard3_edit.hide()
+        self.vcard4_edit.hide()
+        self.vcard5_edit.hide()
+        self.vcard6_edit.hide()
+        self.vcal_label.hide()
+        self.vcal2_label.hide()
+        self.vcal3_edit.hide()
+        self.vcal4_edit.hide()
+        self.dateEdit.hide()
+        self.date2Edit.hide()
+        self.btn.hide()
 
         match index:  # switch
             case 0:
@@ -355,10 +555,24 @@ class QRTool(QMainWindow):
                 self.isHidden.show()
             case 9:
                 self.vcard_edit.show()
+                self.vcard_edit.show()
+                self.vcard2_edit.show()
+                self.vcard3_edit.show()
+                self.vcard4_edit.show()
+                self.vcard5_edit.show()
+                self.vcard6_edit.show()
             case 10:
-                self.vcal_edit.show()
+                self.vcal_label.show()
+                self.vcal2_label.show()
+                self.vcal3_edit.show()
+                self.vcal4_edit.show()
+                self.dateEdit.show()
+                self.date2Edit.show()
+                self.btn.show()
 
         self.adjustSize()  # Корректировка размера окна
+
+
 
     def on_text_changed(self, text):
         # Генерация QR-кода
@@ -369,18 +583,33 @@ class QRTool(QMainWindow):
         img = qr.make_image(fill_color="black", back_color="white")
         img.save('qr.png')  # Сохранение в файл
 
-        if len(text) > 0:  # Проверка на наличие тексоле ввода(если его нет, тогда QR-код удаляется)
-            pixmap = QPixmap('qr.png')
-            self.adjustSize()
-            self.qr_label.setPixmap(pixmap)
-            self.qr_label.setScaledContents(True)
 
-        else:
+        if ((text == "MECARD: N:, ;TEL:+;BDAY:;EMAIL:;URL:;;") or
+                (text == "mailto:") or (text == "SMSTO:") or
+                (text == "tel:") or (text == "geo:") or
+                (text == "https://wa.me//?text=") or
+                (text == "skype:") or
+                (text == "https://zoom.us/j/?pwd=") or
+                (text == "WIFI:S:;P:;;")):
+            text = ""
+
+
+        if len(text) > 0:  # Проверка на наличие текста в поле ввода(если его нет, тогда QR-код удаляется)
+            pixmap = QPixmap('qr.png')
+            self.qr_label.setPixmap(pixmap)
+            text = ""
+            self.qr_label.setScaledContents(True)
+            self.setMaximumSize(440, 620)
             self.adjustSize()
+        else:
+            self.setMaximumSize(330, 410)
+            # self.maximumHeight(400)
+            # self.maximumWidth(320)
             pixmap = QPixmap('example_qr.png')
             self.qr_label.setPixmap(pixmap)
             self.qr_label.setScaledContents(True)
-
+            self.setMaximumSize(440, 620)
+            self.adjustSize()
             # self.qr_label.clear()
 
 
