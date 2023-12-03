@@ -30,7 +30,7 @@ class QRTool(QMainWindow):
         options = ["Текст / Ссылка", "Почта",
                    "Геопозиция", "Телефон", "СМС",
                    "Whatsapp", "Skype", "Zoom",
-                   "WiFi", "Визитка", "Календарь"]  # Список элементов ComboBox
+                   "WiFi", "Визитка"]  # Список элементов ComboBox
 
 
 
@@ -52,7 +52,6 @@ class QRTool(QMainWindow):
         self.combo_box.setItemIcon(7, QIcon('zoom.png'))
         self.combo_box.setItemIcon(8, QIcon('wifi.png'))
         self.combo_box.setItemIcon(9, QIcon('vcard.png'))
-        self.combo_box.setItemIcon(10, QIcon('calendar.png'))
 
         # Установка стилей для ComboBox
         self.combo_box.setStyleSheet("""
@@ -299,86 +298,6 @@ class QRTool(QMainWindow):
         layout.addWidget(self.vcard5_edit)
         layout.addWidget(self.vcard6_edit)
 
-        self.vcal_label = QLabel("Дата начала события:")  # Визитка
-        
-        self.vcal_label.setAlignment(Qt.AlignmentFlag.AlignTop)
-
-
-        self.vcal2_label = QLabel("Дата окончания события:")
-        self.vcal2_label.setAlignment(Qt.AlignmentFlag.AlignTop)
-
-
-        self.vcal3_edit = QLineEdit()
-        self.vcal3_edit.setPlaceholderText("Название события")
-        self.vcal3_edit.setAlignment(Qt.AlignmentFlag.AlignTop)
-        self.vcal3_edit.setStyleSheet(style)
-
-        self.vcal4_edit = QLineEdit()
-        self.vcal4_edit.setPlaceholderText("URL")
-        self.vcal4_edit.setAlignment(Qt.AlignmentFlag.AlignTop)
-        self.vcal4_edit.setStyleSheet(style)
-
-        # Создайте пространство даты и времени и назначьте текущую дату и время. И изменить формат отображения
-        self.dateEdit = QDateTimeEdit(QDateTime.currentDateTime(), self)
-        self.dateEdit.setDisplayFormat('yyyyMMddTHH:mm:ss"Z"')
-
-        # Установите максимальные и минимальные даты на основе текущей даты, следующего года и предыдущего года
-        self.dateEdit.setMinimumDate(QDate.currentDate().addDays(0))
-
-        # Установите управление календарем, чтобы разрешить всплывающее окно
-        self.dateEdit.setCalendarPopup(True)
-
-        # Триггер функции слота при изменении даты
-        self.dateEdit.dateChanged.connect(self.onDateChanged)
-        # Триггер функции слота при изменении даты и времени
-        self.dateEdit.dateTimeChanged.connect(self.onDateTimeChanged)
-        # Trigger при изменении времени
-        self.dateEdit.timeChanged.connect(self.onTimeChanged)
-
-        # Создайте пространство даты и времени и назначьте текущую дату и время. И изменить формат отображения
-        self.date2Edit = QDateTimeEdit(QDateTime.currentDateTime(), self)
-        self.date2Edit.setDisplayFormat('yyyy-MM-dd HH:mm:ss')
-
-        # Установите максимальные и минимальные даты на основе текущей даты, следующего года и предыдущего года
-        self.date2Edit.setMinimumDate(QDate.currentDate().addDays(-2))
-
-        # Установите управление календарем, чтобы разрешить всплывающее окно
-        self.date2Edit.setCalendarPopup(True)
-
-        # Триггер функции слота при изменении даты
-        self.date2Edit.dateChanged.connect(self.onDateChanged)
-        # Триггер функции слота при изменении даты и времени
-        self.date2Edit.dateTimeChanged.connect(self.onDateTimeChanged)
-        # Trigger при изменении времени
-        self.date2Edit.timeChanged.connect(self.onTimeChanged)
-
-        self.dateEdit.setStyleSheet(style)
-        self.date2Edit.setStyleSheet(style)
-
-        # Создать кнопку и привязать пользовательский слот
-        self.btn = QPushButton('Получить дату и время')
-        self.btn.clicked.connect(self.onButtonClick)
-
-        self.dateEdit.timeChanged.connect(
-            lambda: self.on_text_changed(
-                f'BEGIN:VCALENDAR\nVERSION:2.0\nBEGIN:VEVENT\nDTSTART:{self.dateEdit.text()}\nDTEND:{self.date2Edit.text()}\nSUMMARY:{self.vcal3_edit.text()}\nURL:http://{self.vcal4_edit.text()}\nCLASS:PUBLIC\nBEGIN:VALARM\nTRIGGER:-PT24H\nACTION:DISPLAY\nDESCRIPTION:Reminder\nEND:VEVENT\nEND:VCALENDAR'))
-        self.date2Edit.timeChanged.connect(
-            lambda: self.on_text_changed(
-                f'BEGIN:VCALENDAR\nVERSION:2.0\nBEGIN:VEVENT\nDTSTART:{self.dateEdit.text()}\nDTEND:{self.date2Edit.text()}\nSUMMARY:{self.vcal3_edit.text()}\nURL:http://{self.vcal4_edit.text()}\nCLASS:PUBLIC\nBEGIN:VALARM\nTRIGGER:-PT24H\nACTION:DISPLAY\nDESCRIPTION:Reminder\nEND:VEVENT\nEND:VCALENDAR'))
-        self.vcal3_edit.textChanged.connect(
-            lambda: self.on_text_changed(
-                f'BEGIN:VCALENDAR\nVERSION:2.0\nBEGIN:VEVENT\nDTSTART:{self.dateEdit.text()}\nDTEND:{self.date2Edit.text()}\nSUMMARY:{self.vcal3_edit.text()}\nURL:http://{self.vcal4_edit.text()}\nCLASS:PUBLIC\nBEGIN:VALARM\nTRIGGER:-PT24H\nACTION:DISPLAY\nDESCRIPTION:Reminder\nEND:VEVENT\nEND:VCALENDAR'))
-        self.vcal4_edit.textChanged.connect(
-            lambda: self.on_text_changed(
-                f'BEGIN:VCALENDAR\nVERSION:2.0\nBEGIN:VEVENT\nDTSTART:{self.dateEdit.text()}\nDTEND:{self.date2Edit.text()}\nSUMMARY:{self.vcal3_edit.text()}\nURL:http://{self.vcal4_edit.text()}\nCLASS:PUBLIC\nBEGIN:VALARM\nTRIGGER:-PT24H\nACTION:DISPLAY\nDESCRIPTION:Reminder\nEND:VEVENT\nEND:VCALENDAR'))
-        layout.addWidget(self.vcal_label)
-        layout.addWidget(self.dateEdit)
-        layout.addWidget(self.vcal2_label)
-        layout.addWidget(self.date2Edit)
-        layout.addWidget(self.btn)
-        layout.addWidget(self.vcal3_edit)
-        layout.addWidget(self.vcal4_edit)
-
 
 
         # Прячем все виджеты
@@ -410,63 +329,13 @@ class QRTool(QMainWindow):
         self.vcard4_edit.hide()
         self.vcard5_edit.hide()
         self.vcard6_edit.hide()
-        self.vcal_label.hide()
-        self.vcal2_label.hide()
-        self.vcal3_edit.hide()
-        self.vcal4_edit.hide()
-        self.dateEdit.hide()
-        self.date2Edit.hide()
-        self.btn.hide()
+
 
         # Добавляем рабочее место для виджетов
         central_widget = QWidget()
         central_widget.setLayout(layout)
         self.setCentralWidget(central_widget)
 
-        window_size = self.size()
-        width = window_size.width()
-        height = window_size.height()
-
-        print(f"Ширина: {width}, Высота: {height}")
-
-        # Выполняется при изменении даты
-
-    def onDateChanged(self, date):
-        # Выход изменил дату
-        print(date)
-        # Выполнить независимо от изменения даты или времени
-
-    def onDateTimeChanged(self, dateTime):
-        # Выход изменил дату и время
-        print(dateTime)
-        # Выполнение изменения времени
-
-    def onTimeChanged(self, time):
-        # Выход изменил время
-        print(time)
-
-    def onButtonClick(self):
-        dateTime = self.dateEdit.dateTime()
-        # Максимальная дата
-        maxDate = self.dateEdit.maximumDate()
-        # Максимальное время даты
-        maxDateTime = self.dateEdit.maximumDateTime()
-        # Максимальное время
-        maxTime = self.dateEdit.maximumTime()
-
-        # Минимальная дата
-        minDate = self.dateEdit.minimumDate()
-        # Минимальная дата и время
-        minDateTime = self.dateEdit.minimumDateTime()
-        # Минимальное время
-        minTime = self.dateEdit.minimumTime()
-
-        print('\ nВыберите время и дату')
-        print("Дата и время =% s" % str(dateTime))
-        print("Максимальное время даты =% s" % str(maxDateTime))
-        print("Макс. Время =% s" % str(maxTime))
-        print("Минимальное время даты =% s" % str(minDateTime))
-        print("Минимальное время =% s" % str(minTime))
     def on_checkbox_state_changed(self, state):
         if state == Qt.Checked:
             self.wifi_isHidden.setText("H:true;")
@@ -516,13 +385,8 @@ class QRTool(QMainWindow):
         self.vcard4_edit.hide()
         self.vcard5_edit.hide()
         self.vcard6_edit.hide()
-        self.vcal_label.hide()
-        self.vcal2_label.hide()
-        self.vcal3_edit.hide()
-        self.vcal4_edit.hide()
-        self.dateEdit.hide()
-        self.date2Edit.hide()
-        self.btn.hide()
+
+
 
         match index:  # switch
             case 0:
@@ -561,14 +425,7 @@ class QRTool(QMainWindow):
                 self.vcard4_edit.show()
                 self.vcard5_edit.show()
                 self.vcard6_edit.show()
-            case 10:
-                self.vcal_label.show()
-                self.vcal2_label.show()
-                self.vcal3_edit.show()
-                self.vcal4_edit.show()
-                self.dateEdit.show()
-                self.date2Edit.show()
-                self.btn.show()
+
 
         self.adjustSize()  # Корректировка размера окна
 
